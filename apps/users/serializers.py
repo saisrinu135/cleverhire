@@ -38,3 +38,6 @@ class LoginRequestSerializer(serializers.Serializer):
 
 class LogoutRequestSerializer(serializers.Serializer):
     refresh = serializers.CharField(write_only=True)
+
+class UserVerifyRequest(serializers.Serializer):
+    token = serializers.UUIDField(write_only=True)

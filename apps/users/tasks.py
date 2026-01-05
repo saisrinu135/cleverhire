@@ -13,3 +13,12 @@ def send_welcome_email(user_id):
     except User.DoesNotExist:
         # Log this error ideally
         pass
+
+@shared_task
+def send_verification_email(user_id):
+    try:
+        user = User.objects.get(id=user_id)
+        EmailService.send_verification_email(user)
+    except User.DoesNotExist:
+        # Log this error ideally
+        pass

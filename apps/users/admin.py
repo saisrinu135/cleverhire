@@ -7,12 +7,19 @@ from apps.users.models import User, Profile, CompanyProfile
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
     list_display = ('username', 'role', 'email', 'first_name',
-                    'last_name', 'is_active', 'is_staff')
-    list_filter = ('role', 'is_active', 'is_staff')
+                    'last_name', 'is_active', 'is_staff', 'email_token', 'is_email_verified')
+    list_filter = ('role', 'is_active', 'is_staff', 'is_email_verified')
     search_fields = ('username', 'email', 'first_name', 'last_name')
     ordering = ('-created_at',)
     readonly_fields = ('created_at', 'updated_at',
-                       'role', 'is_active', 'is_staff')
+                       'role', 'is_active', 'is_staff', 'is_email_verified', 'email_token')
+    actions = ['soft_delete']
+    
+
+    def soft_delete(self, request, queryset):
+        for obj in queryset:
+            obj.is_deleted = True
+            obj.save()
 
 
 @admin.register(Profile)

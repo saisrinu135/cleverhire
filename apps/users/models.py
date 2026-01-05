@@ -19,6 +19,8 @@ class User(AbstractUser, TimeStampedModel):
         max_length=20, choices=Role.choices, default=Role.JOB_SEEKER)
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
     is_deleted = models.BooleanField(default=False)
+    email_token = models.UUIDField(default=None, editable=False, null=True, blank=True, unique=True)
+    is_email_verified = models.BooleanField(default=False, null=False, blank=False)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']

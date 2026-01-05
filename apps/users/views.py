@@ -1,3 +1,5 @@
+import uuid
+
 from rest_framework import generics, status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -8,7 +10,7 @@ from rest_framework_simplejwt.exceptions import TokenError
 
 from django.contrib.auth import get_user_model, authenticate
 
-from apps.users.serializers import SignUpSerializer, UserSerializer, LoginRequestSerializer, LogoutRequestSerializer
+from apps.users.serializers import SignUpSerializer, UserSerializer, LoginRequestSerializer, LogoutRequestSerializer, UserVerifyRequest
 from apps.users import tasks
 from apps.core.serializers import ResponseSerializer
 
@@ -22,7 +24,11 @@ class SignUpView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         user = serializer.save()
-        tasks.send_welcome_email.delay_on_commit(user.id)
+        user.email_token = str(uuid.uuid4())
+        user.save()
+
+        # Send verification email
+        tasks.send_verification_email.delay_on_commit(user.id)
 
 
 class LoginView(APIView):
@@ -55,6 +61,7 @@ class LoginView(APIView):
 
 class LogoutView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = LogoutRequestSerializer
 
     def post(self, request):
         serializer = LogoutRequestSerializer(data=request.data)
@@ -89,3 +96,30 @@ class MeView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+class UserVerify(APIView):
+    permission_classes = (permissions.AllowAny,)
+    serializer_class = UserVerifyRequest
+
+    def post(self, requst):
+        serializer = self.serializer_class(data=requst.data)
+
+        if not serializer.is_valid():
+            raise ValidationError(serializer.errors)
+
+        token = serializer.validated_data.get('token')
+        if not token:
+            raise AuthenticationFailed(detail='Invalid token')
+        try:
+            user = User.objects.get(email_token=token)
+            user.is_email_verified = True
+            user.save()
+            return Response({
+                'status_code': status.HTTP_200_OK,
+                'message': 'Email verified successfully',
+                "status": True
+            })
+        except User.DoesNotExist:
+            raise AuthenticationFailed(detail='Invalid token')
+        

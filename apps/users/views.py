@@ -44,7 +44,7 @@ class LoginView(APIView):
 
         if not user.is_active:
             raise AuthenticationFailed(detail='User account is disabled.')
-        
+
         refresh = RefreshToken.for_user(user)
         return Response({
             'refresh': str(refresh),
@@ -60,15 +60,15 @@ class LogoutView(APIView):
         serializer = LogoutRequestSerializer(data=request.data)
         if not serializer.is_valid():
             raise ValidationError(serializer.errors)
-        
+
         refresh_token = serializer.validated_data.get('refresh')
         if not refresh_token:
             raise AuthenticationFailed(detail='Invalid refresh token')
-        
+
         try:
             token = RefreshToken(refresh_token)
             token.blacklist()
-            
+
             response_serializer = ResponseSerializer(data={
                 'status_code': status.HTTP_200_OK,
                 'message': 'Logout successful',
@@ -78,7 +78,7 @@ class LogoutView(APIView):
             response_serializer.is_valid(raise_exception=True)
 
             return Response(response_serializer.validated_data)
-        
+
         except TokenError:
             raise AuthenticationFailed(detail='Invalid token')
 

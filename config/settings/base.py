@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'django.contrib.gis',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
+    'celery',
 
 
     # Installed apps
@@ -230,8 +231,16 @@ SIMPLE_JWT = {
 # Celery Configuration
 CELERY_BROKER_URL = env('CELERY_BROKER_URL',
                         default='redis://localhost:6379/0')
-CELERY_RESULT_BACKEND = env('CELERY_RESULT_BACKEND', default='django-db')
+CELERY_RESULT_BACKEND = env('CELERY_RESULT_BACKEND', default='redis://localhost:6379/0')
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')

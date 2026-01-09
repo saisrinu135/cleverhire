@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'celery',
     'django_celery_beat',
+    'django_filters',
 
 
     # Installed apps

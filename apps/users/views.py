@@ -114,6 +114,7 @@ class UserVerify(APIView):
         try:
             user = User.objects.get(email_token=token)
             user.is_email_verified = True
+            user.email_token = None
             user.save()
             return Response({
                 'status_code': status.HTTP_200_OK,

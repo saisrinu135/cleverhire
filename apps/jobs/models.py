@@ -1,7 +1,8 @@
 from django.contrib.gis.db import models
 from django.utils.translation import gettext_lazy as _
 from apps.core.models import TimeStampedModel
-from apps.users.models import User
+from apps.users.models import User, CompanyProfile, CompanyBranch
+from apps.jobs.manager import JobModelManager
 
 
 class Skill(TimeStampedModel):
@@ -37,11 +38,18 @@ class Job(TimeStampedModel):
         CLOSED = 'CLOSED', _('Closed')
 
     employer = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='posted_jobs')
+        User, on_delete=models.CASCADE, related_name='posted_jobs'
+    )
+    company = models.ForeignKey(
+        CompanyProfile, on_delete=models.CASCADE, related_name='jobs', default=None, blank=True, null=True
+    )
+    branch = models.ForeignKey(
+        CompanyBranch, on_delete=models.CASCADE, related_name='jobs', default=None, blank=True, null=True
+    )
+    
     title = models.CharField(max_length=255)
     description = models.TextField()
     requirements = models.TextField()
-    location = models.PointField(srid=4326, blank=True, null=True)
     is_remote = models.BooleanField(default=False)
     salary_min = models.IntegerField(blank=True, null=True)
     salary_max = models.IntegerField(blank=True, null=True)
@@ -56,6 +64,10 @@ class Job(TimeStampedModel):
     expires_at = models.DateTimeField(blank=True, null=True)
     view_count = models.PositiveIntegerField(default=0)
     application_count = models.PositiveIntegerField(default=0)
+    is_deleted = models.BooleanField(default=False)
+
+    active_objects = JobModelManager()
+    objects = models.Manager()
 
     def __str__(self):
         return self.title

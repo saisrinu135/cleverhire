@@ -43,11 +43,12 @@ class User(AbstractUser, TimeStampedModel):
 
     @property
     def is_job_seeker(self):
-        return self.role == self.Role.JOB_SEEKER
+        return hasattr(self, 'profile')
 
     @property
     def is_employer(self):
-        return self.role == self.Role.EMPLOYER
+        return hasattr(self, 'company_profile') or self.experiences.filter(
+            company__isnull=False, is_current=True).exists()
 
 
 class Profile(TimeStampedModel):
@@ -97,6 +98,30 @@ class CompanyProfile(TimeStampedModel):
         verbose_name = 'Company Profile'
         verbose_name_plural = 'Company Profiles'
         db_table = 'company_profiles'
+
+
+class CompanyBranch(TimeStampedModel):
+    company = models.ForeignKey(
+        CompanyProfile, on_delete=models.CASCADE, related_name='branches'
+    )
+    name = models.CharField(max_length=255)
+    location = models.PointField(srid=4326, blank=True, null=True)
+    address = models.TextField(blank=True)
+    city = models.CharField(max_length=100, blank=True)
+    state = models.CharField(max_length=100, blank=True)
+    country = models.CharField(max_length=100, blank=True)
+    postal_code = models.CharField(max_length=20, blank=True)
+
+    is_headquarters = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name
+    
+    class Meta:
+        verbose_name = 'Company Branch'
+        verbose_name_plural = 'Company Branches'
+        db_table = 'company_branches'
 
 
 class Experience(TimeStampedModel):

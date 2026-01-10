@@ -10,9 +10,16 @@ from rest_framework_simplejwt.exceptions import TokenError
 
 from django.contrib.auth import get_user_model, authenticate
 
-from apps.users.serializers import SignUpSerializer, UserSerializer, LoginRequestSerializer, LogoutRequestSerializer, UserVerifyRequest
-from apps.users import tasks
 from apps.core.serializers import ResponseSerializer
+from apps.core.permissions import IsEmployer
+
+from apps.users.serializers import (
+    SignUpSerializer, UserSerializer, LoginRequestSerializer, LogoutRequestSerializer, UserVerifyRequest,
+    CompanySerializer
+)
+from apps.users.utils import generate_verification_token, verify_token
+from apps.users.models import CompanyProfile
+from apps.users import tasks
 
 User = get_user_model()
 
@@ -24,7 +31,7 @@ class SignUpView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         user = serializer.save()
-        user.email_token = str(uuid.uuid4())
+        user.email_token = generate_verification_token(user.id)
         user.save()
 
         # Send verification email
@@ -112,7 +119,8 @@ class UserVerify(APIView):
         if not token:
             raise AuthenticationFailed(detail='Invalid token')
         try:
-            user = User.objects.get(email_token=token)
+            user_id = verify_token(token)
+            user = User.objects.get(id=user_id)
             user.is_email_verified = True
             user.email_token = None
             user.save()
@@ -123,4 +131,45 @@ class UserVerify(APIView):
             })
         except User.DoesNotExist:
             raise AuthenticationFailed(detail='Invalid token')
+
+
+class ResendVerificationEmail(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_object(self):
+        return self.request.user
+
+    def post(self, request):
+        try:
+            user = self.get_object()
+
+            if user.is_email_verified:
+                raise ValidationError('Email already verified')
+
+            user.email_token = generate_verification_token(user.id)
+            user.save()
+
+            return Response(data={
+                "success": True,
+                "message": "Verification email sent successfully",
+                "status_code": 200
+            }, status=status.HTTP_201_CREATED
+            )
+        except User.DoesNotExist:
+            raise AuthenticationFailed(detail='User not found')
+
+
+class CompanyView(generics.ListCreateAPIView):
+    queryset = CompanyProfile.objects.all()
+    serializer_class = CompanySerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        return super().get_queryset().filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        existing_company = CompanyProfile.objects.filter(company_name=serializer.validated_data.get('company_name')).exists()
+        if existing_company:
+            raise ValidationError('Company already exists')
         
+        serializer.save(user=self.request.user)

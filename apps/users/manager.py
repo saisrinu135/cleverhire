@@ -1,4 +1,5 @@
 from django.contrib.auth.base_user import BaseUserManager
+from django.db.models import Manager
 
 class UserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -26,5 +27,10 @@ class UserManager(BaseUserManager):
 
         return self.create_user(email, password, **extra_fields)
     
+    def get_queryset(self):
+        return super().get_queryset().filter(is_deleted=False)
+
+
+class CompanyManager(Manager):
     def get_queryset(self):
         return super().get_queryset().filter(is_deleted=False)

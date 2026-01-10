@@ -61,3 +61,14 @@ class EmailService:
             context={'user': user, 'verification_url': verification_url},
             to_email=user.email
         )
+    
+    @staticmethod
+    def resend_verification_email(user):
+        verification_url = f'{settings.FRONTEND_URL}/verfify-email/{user.email_token}'
+        logger.info(f'Verification URL: {verification_url}')
+        EmailService.send_template_email(
+            subject='Verify your email',
+            template_name='resendverification.html',
+            context={'user': user, 'verification_url': verification_url},
+            to_email=user.email
+        )

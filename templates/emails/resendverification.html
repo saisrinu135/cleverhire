@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .container { max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif; }
+        .header { background: #007bff; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; }
+        .button { background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Verify your email!</h1>
+        </div>
+        <div class="content">
+            <p>Hi {{ user.first_name }},</p>
+            <p>Please verify your account by clicking on the button below:</p>
+            
+            <a href="{{ verification_url }}" class="button">Verify Your Account</a>
+            
+            <p>Or copy and paste this link in your browser:</p>
+            <p><a href="{{ verification_url }}">{{ verification_url }}</a></p>
+            
+            <p>Best regards,<br>The CleverHire Team</p>
+        </div>
+    </div>
+</body>
+</html>

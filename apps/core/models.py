@@ -1,5 +1,6 @@
+from django.contrib.gis.db import models
 import uuid
-from django.db import models
+
 
 class TimeStampedModel(models.Model):
     """
@@ -12,3 +13,18 @@ class TimeStampedModel(models.Model):
 
     class Meta:
         abstract = True
+
+
+class Location(TimeStampedModel):
+    city = models.CharField(max_length=100)
+    state = models.CharField(max_length=100)
+    country = models.CharField(max_length=100)
+    coordinates = models.PointField(srid=4326, blank=True, null=True)
+
+    class Meta:
+        verbose_name = 'Location'
+        verbose_name_plural = 'Locations'
+        db_table = 'locations'
+
+    def __str__(self):
+        return f"{self.city}, {self.state}, {self.country}"

@@ -1,8 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from apps.users.models import User, Profile, CompanyProfile, CompanyBranch
-
+from apps.users.models import User, Profile, CompanyProfile
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
@@ -38,30 +37,15 @@ class ProfileAdmin(admin.ModelAdmin):
     get_skills.short_description = 'Skills'
 
 
-
-class CompanyBranchInline(admin.StackedInline):
-    model = CompanyBranch
-    extra = 1
-    fields = ('name', 'location', 'address', 'city', 'state', 'country', 'postal_code', 'is_headquarters', 'is_active')
-
-
 @admin.register(CompanyProfile)
 class CompanyProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'company_name', 'company_size', 'industry',
-                    'location', 'website', 'description', 'logo', 'founded_date')
-    list_filter = ('company_size', 'industry')
+    list_display = ('user', 'company_name', 'company_size', 'industry','get_location','location',
+                    'address', 'city', 'state', 'country', 'zip_code', 'website', 'description', 'logo', 'founded_date')
+    list_filter = ('company_size', 'industry', 'city', 'state', 'country')
     search_fields = ('company_name', 'company_size', 'industry')
     ordering = ('-created_at',)
     readonly_fields = ('created_at', 'updated_at')
     list_select_related = ('user',)
-    inlines = [CompanyBranchInline]
 
-
-@admin.register(CompanyBranch)
-class CompanyBrandAdmin(admin.ModelAdmin):
-    list_display  = ('company', 'name', 'location', 'address', 'city', 'state', 'country', 'postal_code', 'is_headquarters', 'is_active')
-    list_filter = ('is_headquarters', 'is_active', 'state', 'country', 'city')
-    search_fields = ('name', 'city', 'state', 'country', 'postal_code')
-    ordering = ('-created_at', 'company')
-    search_fields = ('name', 'city', 'state', 'country', 'postal_code', 'company__company_name')
-    list_select_related = ('company',)
+    def get_location(self, obj):
+        return ", ".join([location.city for location in obj.locations.all()])

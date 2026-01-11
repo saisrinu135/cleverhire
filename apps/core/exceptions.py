@@ -44,7 +44,11 @@ def custom_exception_handler(exc, context):
 
     # If it is a handled DRF exception (e.g. 400, 401, 403, 404)
     if response is not None:
-        message = response.data.get('detail', 'An error occurred')
+        # Safely get message from response data
+        if isinstance(response.data, dict):
+            message = response.data.get('detail', 'An error occurred')
+        else:
+            message = 'An error occurred'
 
         if isinstance(exc, ParseError):
             message = 'Invalid JSON format. Please check your request body.'

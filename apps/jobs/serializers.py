@@ -2,7 +2,7 @@ from rest_framework import serializers
 from apps.core.serializers import LocationSerializer
 from apps.core.models import Location
 from .models import Job, Skill
-from apps.users.models import User
+from apps.users.models import User, CompanyProfile
 
 
 class SkillSerializer(serializers.ModelSerializer):
@@ -17,9 +17,16 @@ class JobEmployerSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'first_name', 'last_name', 'avatar']
 
 
+class JobCompanySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CompanyProfile
+        fields = ['id', 'company_name', 'logo']
+
+
 class JobSerializer(serializers.ModelSerializer):
     required_skills = SkillSerializer(many=True, read_only=True)
     published_by = JobEmployerSerializer(source='employer', read_only=True)
+    company = JobCompanySerializer(read_only=True)
     location = LocationSerializer(read_only=True)
     location_id = serializers.PrimaryKeyRelatedField(
         queryset=Location.objects.all(), source='location', write_only=True, required=False
@@ -31,7 +38,7 @@ class JobSerializer(serializers.ModelSerializer):
     class Meta:
         model = Job
         fields = [
-            'id', 'title', 'description', 'location', 'location_id',
+            'id', 'title', 'description','company', 'location', 'location_id',
             'is_remote', 'salary_min', 'salary_max', 'currency',
             'experience_level', 'employment_type', 'required_skills',
             'status', 'created_at', 'published_by', 'skill_ids', 'application_count', 'view_count'

@@ -19,7 +19,7 @@ class User(AbstractUser, TimeStampedModel):
         max_length=20, choices=Role.choices, default=Role.JOB_SEEKER)
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
     is_deleted = models.BooleanField(default=False)
-    email_token = models.UUIDField(
+    email_token = models.CharField(
         default=None, editable=False, null=True, blank=True, unique=True)
     is_email_verified = models.BooleanField(
         default=False, null=False, blank=False)
@@ -117,7 +117,7 @@ class Experience(TimeStampedModel):
         User, on_delete=models.CASCADE, related_name='experiences')
     company = models.ForeignKey(CompanyProfile, on_delete=models.SET_NULL,
                                 null=True, blank=True, related_name='employee_experiences')
-    company_name = models.CharField(max_length=255)
+    company_name = models.CharField(max_length=255, blank=True, null=True)
     title = models.CharField(max_length=255)
     start_date = models.DateField()
     end_date = models.DateField(blank=True, null=True)

@@ -1,7 +1,16 @@
 from django.contrib import admin
 
 # Register your models here.
-from apps.users.models import User, Profile, CompanyProfile
+from apps.users.models import User, Profile, CompanyProfile, Experience
+
+
+
+class ExperienceInline(admin.StackedInline):
+    model = Experience
+    extra = 1
+    max_num = 3
+    fields = ['company','company_name', 'title', 'start_date', 'end_date', 'description', 'is_current']
+
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
@@ -13,7 +22,7 @@ class UserAdmin(admin.ModelAdmin):
     readonly_fields = ('created_at', 'updated_at',
                        'role', 'is_active', 'is_staff', 'is_email_verified', 'email_token')
     actions = ['soft_delete']
-    
+    inlines = [ExperienceInline]
 
     def soft_delete(self, request, queryset):
         for obj in queryset:
@@ -39,13 +48,42 @@ class ProfileAdmin(admin.ModelAdmin):
 
 @admin.register(CompanyProfile)
 class CompanyProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'company_name', 'company_size', 'industry','get_location','location',
-                    'address', 'city', 'state', 'country', 'zip_code', 'website', 'description', 'logo', 'founded_date')
-    list_filter = ('company_size', 'industry', 'city', 'state', 'country')
-    search_fields = ('company_name', 'company_size', 'industry')
+    list_display = ('id', 'user', 'company_name', 'company_size', 'industry','operating_locations','location',
+                    'address', 'city', 'state', 'country', 'zip_code', 'website', 'description', 'logo', 'founded_date', 'is_deleted')
+    list_filter = ('industry', 'city', 'state', 'country', 'is_deleted')
+    search_fields = ('company_name', 'industry')
     ordering = ('-created_at',)
     readonly_fields = ('created_at', 'updated_at')
     list_select_related = ('user',)
+    actions = ['restore_companies', 'restore_all_companies', 'soft_delete']
 
-    def get_location(self, obj):
+
+    def operating_locations(self, obj):
         return ", ".join([location.city for location in obj.locations.all()])
+
+    def get_queryset(self, request):
+        return CompanyProfile.objects.all()
+
+
+    def restore_companies(self, request, queryset):
+        for obj in queryset:
+            obj.is_deleted = False
+            obj.save()
+    
+    def restore_all_companies(self, request, queryset):
+        CompanyProfile.objects.all().update(is_deleted=False)
+    
+    def soft_delete(self, request, queryset):
+        for obj in queryset:
+            obj.is_deleted = True
+            obj.save()
+
+
+@admin.register(Experience)
+class ExperienceAdmin(admin.ModelAdmin):
+    list_display = ('user', 'company', 'company_name', 'title', 'start_date', 'end_date', 'description', 'is_current')
+    list_filter = ('is_current',)
+    search_fields = ('company_name', 'title')
+    ordering = ('-created_at',)
+    readonly_fields = ('created_at', 'updated_at')
+    list_select_related = ('user', 'company')

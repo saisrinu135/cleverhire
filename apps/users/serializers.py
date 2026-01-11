@@ -45,7 +45,7 @@ class LogoutRequestSerializer(serializers.Serializer):
 
 
 class UserVerifyRequest(serializers.Serializer):
-    token = serializers.UUIDField(write_only=True)
+    token = serializers.CharField(write_only=True)
 
 
 class CompanyBasicSerializer(serializers.ModelSerializer):
@@ -64,9 +64,9 @@ class CompanySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CompanyProfile
-        fields = ('id', 'user', 'company_name', 'company_size', 'industry',
+        fields = ('id', 'company_name', 'company_size', 'industry',
                   'website', 'description', 'logo', 'founded_date', 'locations', 'location_ids')
-        read_only_fields = ('id', 'user')
+        read_only_fields = ('id',)
 
     def create(self, validated_data):
         location_ids = validated_data.pop('location_ids', [])

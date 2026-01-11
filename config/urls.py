@@ -24,9 +24,11 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/auth/', include('apps.users.urls')),
     path('api/v1/jobs/', include('apps.jobs.urls')),
-    
+    path('api/v1/core/', include('apps.core.urls')),
+
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
-    path('api/schema/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('api/schema/docs/',
+         SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
 ]
 
 if settings.DEBUG:
@@ -35,3 +37,6 @@ if settings.DEBUG:
         path('__debug__/', include(debug_toolbar.urls)),
     ]
 
+
+handler404 = 'apps.core.views.custom404'
+handler500 = 'apps.core.views.custom500'

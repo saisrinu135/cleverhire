@@ -1,6 +1,6 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
-from .views import SignUpView, LoginView, MeView, LogoutView, UserVerify, ResendVerificationEmail, CompanyView
+from .views import SignUpView, LoginView, MeView, LogoutView, UserVerify, ResendVerificationEmail, CompanyView, CompanyRetrieveUpdateDestroyView
 
 urlpatterns = [
     path('signup/', SignUpView.as_view(), name='signup'),
@@ -11,4 +11,5 @@ urlpatterns = [
     path('verify/', UserVerify.as_view(), name='verify'),
     path('resend-verification/', ResendVerificationEmail.as_view(), name='resend_verification'),
     path('company/', CompanyView.as_view(), name='company'),
+    path('company/<uuid:id>/', CompanyRetrieveUpdateDestroyView.as_view(), name='company'),
 ]

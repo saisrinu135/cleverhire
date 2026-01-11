@@ -4,11 +4,11 @@ from rest_framework import generics, status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.exceptions import ValidationError, AuthenticationFailed
-
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
 
 from django.contrib.auth import get_user_model, authenticate
+from django.utils import timezone
 
 from apps.core.serializers import ResponseSerializer
 from apps.core.permissions import IsEmployer
@@ -59,6 +59,8 @@ class LoginView(APIView):
             raise AuthenticationFailed(detail='User account is disabled.')
 
         refresh = RefreshToken.for_user(user)
+        user.last_login = timezone.now()
+        user.save(update_fields=['last_login'])
         return Response({
             'refresh': str(refresh),
             'access': str(refresh.access_token),
@@ -150,17 +152,17 @@ class ResendVerificationEmail(APIView):
             user.save()
 
             return Response(data={
-                "success": True,
-                "message": "Verification email sent successfully",
-                "status_code": 200
-            }, status=status.HTTP_201_CREATED
+                    "success": True,
+                    "message": "Verification email sent successfully",
+                    "status_code": 200
+                }, status=status.HTTP_201_CREATED
             )
         except User.DoesNotExist:
             raise AuthenticationFailed(detail='User not found')
 
 
 class CompanyView(generics.ListCreateAPIView):
-    queryset = CompanyProfile.objects.all()
+    queryset = CompanyProfile.active_objects.all()
     serializer_class = CompanySerializer
     permission_classes = (permissions.IsAuthenticated,)
 
@@ -172,4 +174,19 @@ class CompanyView(generics.ListCreateAPIView):
         if existing_company:
             raise ValidationError('Company already exists')
         
-        serializer.save(user=self.request.user)
+        serializer.save()
+
+
+class CompanyRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = CompanyProfile.active_objects.all()
+    serializer_class = CompanySerializer
+    permission_classes = (permissions.IsAuthenticated,)
+    lookup_field = 'id'
+
+    def get_queryset(self):
+        return super().get_queryset().filter(user=self.request.user)
+
+
+    def perform_destroy(self, instance):
+        instance.is_deleted = True
+        instance.save()

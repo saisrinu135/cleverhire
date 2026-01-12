@@ -11,7 +11,7 @@ services:
             - cleverhire
 
     database:
-        image: postgis/postgis:16-3.4
+        image: ostgis/postgis:16-3.4
         environment:
             - POSTGRES_DB=${POSTGRES_DB}
             - POSTGRES_USER=${POSTGRES_USER}
@@ -25,6 +25,7 @@ services:
             interval: 10s
             timeout: 5s
             retries: 5
+        restart: unless-stopped
         networks:
             - cleverhire
 

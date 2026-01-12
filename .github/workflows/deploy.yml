@@ -28,7 +28,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: saisrinu135/cleverhire-backend:latest
+          tags: saisrinugampa/cleverhire-backend:latest
           platforms: linux/arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max

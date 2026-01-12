@@ -10,13 +10,14 @@ services:
             - cleverhire
 
     database:
-        image: postgis/postgis:15-3.3
+        image: postgis/postgis:15-alpine
         environment:
             - POSTGRES_DB=${POSTGRES_DB}
             - POSTGRES_USER=${POSTGRES_USER}
             - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
         volumes:
             - postgres_data:/var/lib/postgresql/data
+             - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
         healthcheck:
             test: ["CMD-SHELL", "pg_isready -U postgres"]
             interval: 10s

@@ -6,21 +6,24 @@ ENV PYTHONUNBUFFERED=1 \
 
 WORKDIR /app
 
+# Install system dependencies including GDAL FIRST
+RUN apt-get update && apt-get install -y \
+    gdal-bin \
+    libgdal-dev \
+    libgeos-dev \
+    libproj-dev \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy and install Python dependencies
 COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Copy application code
 COPY . /app/
 
 # Create necessary directories
 RUN mkdir -p /app/staticfiles /app/media /app/logs
-
-# Collect static files
-RUN python manage.py collectstatic --noinput || true
-
-RUN apt-get update && apt-get install -y \
-    gdal-bin \
-    libgdal-dev \
-    && rm -rf /var/lib/apt/lists/*
 
 EXPOSE 8000
 

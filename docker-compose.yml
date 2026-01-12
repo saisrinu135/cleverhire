@@ -46,6 +46,7 @@ services:
         networks:
             - cleverhire
     backend:
+        image: saisrinu135/cleverhire-backend:latest
         build:
             context: .
             dockerfile: Dockerfile

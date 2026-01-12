@@ -49,8 +49,7 @@ services:
         build:
             context: .
             dockerfile: Dockerfile
-            platforms:
-                - linux/arm64
+            platform: linux/arm64
         command: >
             sh -c "python manage.py migrate &&
                   python manage.py collectstatic --noinput &&
@@ -75,8 +74,7 @@ services:
         build:
             context: .
             dockerfile: Dockerfile
-            platforms:
-                - linux/arm64
+            platform: linux/arm64
         command: celery -A config worker -l info
         env_file:
             - .env
@@ -92,8 +90,7 @@ services:
         build:
             context: .
             dockerfile: Dockerfile
-            platforms:
-                - linux/arm64
+            platform: linux/arm64
         command: celery -A config beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
         env_file:
             - .env

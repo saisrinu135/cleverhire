@@ -24,6 +24,9 @@ class UserAdmin(admin.ModelAdmin):
     actions = ['soft_delete']
     inlines = [ExperienceInline]
 
+    def get_queryset(self, request):
+        return User.objects.all()
+
     def soft_delete(self, request, queryset):
         for obj in queryset:
             obj.is_deleted = True

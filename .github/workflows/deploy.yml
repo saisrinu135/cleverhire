@@ -46,6 +46,6 @@ jobs:
           script: |
             cd /opt/cleverhire/cleverhire
             git pull origin main
-            docker pull saisrinu135/cleverhire-backend:latest
+            docker pull saisrinugampa/cleverhire-backend:latest
             docker-compose -f docker-compose.prod.yml down
             docker-compose -f docker-compose.prod.yml up -d

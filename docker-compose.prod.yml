@@ -3,7 +3,6 @@ version: '3.8'
 services:
     redis:
         image: redis:7-alpine
-        platform: linux/arm64
         volumes:
             - redis_data:/data
         restart: unless-stopped
@@ -12,7 +11,6 @@ services:
 
     database:
         image: postgis/postgis:17-3.4-alpine
-        platform: linux/arm64
         environment:
             - POSTGRES_DB=${POSTGRES_DB}
             - POSTGRES_USER=${POSTGRES_USER}
@@ -30,7 +28,6 @@ services:
 
     rabbitmq:
         image: rabbitmq:3.12-management-alpine
-        platform: linux/arm64
         environment:
             - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
             - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
@@ -101,7 +98,6 @@ services:
 
     flower:
         image: mher/flower:2.0
-        platform: linux/arm64
         ports:
             - "5556:5555"
         environment:
@@ -115,7 +111,6 @@ services:
             - cleverhire
     nginx:
         image: nginx:alpine
-        platform: linux/arm64
         ports:
             - "9000:80"
         volumes:

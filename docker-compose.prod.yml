@@ -68,9 +68,7 @@ services:
             - cleverhire
 
     celery_worker:
-        build:
-            context: .
-            dockerfile: Dockerfile
+        image: saisrinugampa/cleverhire-backend:latest
         command: celery -A config worker -l info
         env_file:
             - .env
@@ -83,9 +81,7 @@ services:
             - cleverhire
 
     celery_beat: 
-        build:
-            context: .
-            dockerfile: Dockerfile
+        image: saisrinugampa/cleverhire-backend:latest
         command: celery -A config beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
         env_file:
             - .env

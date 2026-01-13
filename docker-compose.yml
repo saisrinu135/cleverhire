@@ -50,7 +50,9 @@ services:
             - cleverhire
 
     backend:
-        image: saisrinugampa/cleverhire-backend:latest
+        build:
+            context: .
+            dockerfile: Dockerfile
         command: >
             sh -c "python manage.py migrate &&
                   python manage.py collectstatic --noinput &&
@@ -74,7 +76,9 @@ services:
             - cleverhire
 
     celery_worker:
-        image: saisrinugampa/cleverhire-backend:latest
+        build:
+            context: .
+            dockerfile: Dockerfile
         command: celery -A config worker -l info
         volumes:
           - .:/app
@@ -88,7 +92,9 @@ services:
             - cleverhire
 
     celery_beat: 
-        image: saisrinugampa/cleverhire-backend:latest
+        build:
+            context: .
+            dockerfile: Dockerfile
         command: celery -A config beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
         volumes:
           - .:/app
@@ -110,7 +116,7 @@ services:
         depends_on:
             rabbitmq:
                 condition: service_healthy
-        restart: unless-stopped
+        restart: always
         networks:
             - cleverhire
     nginx:

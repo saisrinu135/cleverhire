@@ -48,5 +48,5 @@ jobs:
             git pull origin main
             echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
             docker pull saisrinugampa/cleverhire-backend:latest
-            docker-compose down
-            docker-compose up -d
+            docker compose down
+            docker compose up -d

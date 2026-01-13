@@ -46,6 +46,7 @@ jobs:
           script: |
             cd /opt/cleverhire/cleverhire
             git pull origin main
+            echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
             docker pull saisrinu135/cleverhire-backend:latest
             docker-compose -f docker-compose.prod.yml down
             docker-compose -f docker-compose.prod.yml up -d

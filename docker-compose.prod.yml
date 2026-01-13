@@ -10,7 +10,7 @@ services:
             - cleverhire
 
     database:
-        image: postgis/postgis:16-3.4
+        image: imresamu/postgis:16-3.5-alpine
         environment:
             - POSTGRES_DB=${POSTGRES_DB}
             - POSTGRES_USER=${POSTGRES_USER}

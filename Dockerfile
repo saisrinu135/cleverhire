@@ -23,7 +23,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . /app/
 
 # Create necessary directories
-RUN mkdir -p /app/staticfiles /app/media /app/logs
+RUN mkdir -p /app/staticfiles /app/media /app/logs /app/static
 
 EXPOSE 8000
 

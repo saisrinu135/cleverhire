@@ -56,7 +56,9 @@ class User(AbstractUser, TimeStampedModel):
 class Profile(TimeStampedModel):
     user = models.OneToOneField(
         User, on_delete=models.CASCADE, related_name='profile')
-    full_name = models.CharField(max_length=255)
+    full_name = models.CharField(max_length=255, blank=True, null=True)
+    headline = models.CharField(max_length=255, blank=True, null=True)
+    summary = models.TextField(blank=True, null=True)
     phone = models.CharField(max_length=20, blank=True)
     is_phone_verified = models.BooleanField(default=False)
     location = models.PointField(srid=4326, blank=True, null=True)

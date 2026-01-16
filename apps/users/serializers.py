@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from apps.core.serializers import ResponseSerializer, LocationSerializer
-from apps.users.models import CompanyProfile, Profile, Experience
+from apps.users.models import CompanyProfile, Profile, Experience, Education
 
 User = get_user_model()
 
@@ -95,13 +95,8 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = Profile
         fields = ('id','full_name','headline','summary','phone','is_phone_verified','location','current_title',
                   'years_of_experience','desired_salary_min','desired_salary_max','resume',
-                  'resume_text','skills','is_actively_looking','is_open_to_remote')
+                  'resume_text','skills','is_actively_looking','is_open_to_remote', 'github_url','linkedin_url','twitter_url','instagram_url','website_url')
         read_only_fields = ('id', 'is_phone_verified', 'full_name')
-
-    def create(self, validated_data):
-        user = self.context['request'].user
-        validated_data['full_name'] = f"{user.first_name} {user.last_name}".strip()
-        return super().create(validated_data)
 
     def update(self, instance, validated_data):
         skills = validated_data.pop('skills', [])
@@ -114,4 +109,11 @@ class ExperienceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Experience
         fields = ('id','company','company_name','title','start_date','end_date','description','is_current')
+        read_only_fields = ('id',)
+
+
+class EducationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Education
+        fields = ('id', 'institute', 'degree', 'field_of_study', 'start_date', 'end_date')
         read_only_fields = ('id',)

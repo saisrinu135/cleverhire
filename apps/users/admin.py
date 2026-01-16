@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from apps.users.models import User, Profile, CompanyProfile, Experience
+from apps.users.models import User, Profile, CompanyProfile, Experience, Education
 
 
 
@@ -10,9 +10,9 @@ class WorkExperienceInline(admin.TabularInline):
     extra = 0
 
 
-# class EducationInline(admin.TabularInline):
-#     model = Education
-#     extra = 0
+class EducationInline(admin.TabularInline):
+    model = Education
+    extra = 0
 
 class ProfileInline(admin.TabularInline):
     model = Profile
@@ -29,7 +29,7 @@ class UserAdmin(admin.ModelAdmin):
     readonly_fields = ('created_at', 'updated_at',
                        'role', 'is_staff', 'is_email_verified', 'email_token', 'password')
     actions = ['soft_delete']
-    inlines = (ProfileInline,)
+    inlines = (ProfileInline, WorkExperienceInline, EducationInline)
 
     def get_queryset(self, request):
         return User.objects.all()
@@ -128,5 +128,11 @@ class ExperienceAdmin(admin.ModelAdmin):
     list_filter = ('is_current',)
     search_fields = ('company_name', 'title')
     ordering = ('-created_at',)
-    readonly_fields = ('created_at', 'updated_at')
+    readonly_fields = ('user','created_at', 'updated_at')
     list_select_related = ('user', 'company')
+
+
+@admin.register(Education)
+class EducationAdmin(admin.ModelAdmin):
+    list_display = ('user', 'institute', 'degree', 'field_of_study')
+    readonly_fields = ('created_at', 'updated_at')

@@ -140,3 +140,13 @@ class Experience(TimeStampedModel):
         verbose_name = 'Experience'
         verbose_name_plural = 'Experiences'
         db_table = 'experiences'
+
+
+class Education(TimeStampedModel):
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='educations')
+    institute = models.CharField(max_length=255)
+    degree = models.CharField(max_length=255, blank=True)
+    field_of_study = models.CharField(max_length=255, blank=True)
+    start_date = models.DateField()
+    end_date = models.DateField(blank=True, null=True)

@@ -9,6 +9,8 @@ class SkillAdmin(admin.ModelAdmin):
     list_display = ['name', 'category', 'created_at', 'updated_at']
     list_filter = ['category']
     readonly_fields = ('created_at', 'updated_at')
+    search_fields = ['name']
+    ordering = ['name']
 
 @admin.register(Job)
 class JobAdmin(admin.ModelAdmin):

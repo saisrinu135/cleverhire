@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'storages',
 
     # Third party apps
     'rest_framework',
@@ -167,16 +168,61 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-# Static files
+USE_S3 = env.bool('USE_S3', default=True)
+
+# 1. CONSTANT: Static Files (Always Local/WhiteNoise)
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_DIRS = [BASE_DIR / 'static']
-
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_DIRS = []
 
-# Media files
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    }
+}
+
+if USE_S3:
+    # 2. MEDIA: S3 / R2 Configuration
+    AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY')
+    AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME')
+    AWS_S3_ENDPOINT_URL = env('AWS_S3_ENDPOINT_URL')
+    AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
+
+    # Custom Domain:
+    # Set to None so boto3 generates Signed URLs (secure, temporary links)
+    # This is required for Private Buckets (like for Resumes)
+    AWS_S3_CUSTOM_DOMAIN = None
+    MEDIA_URL = f'{AWS_S3_ENDPOINT_URL}/media/'
+
+    # Add S3 backend for default (media) storage
+    STORAGES["default"] = {
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+        "OPTIONS": {
+            "access_key": AWS_ACCESS_KEY_ID,
+            "secret_key": AWS_SECRET_ACCESS_KEY,
+            "bucket_name": AWS_STORAGE_BUCKET_NAME,
+            "endpoint_url": AWS_S3_ENDPOINT_URL,
+            "default_acl": None,
+            "location": "media",
+            "file_overwrite": False,
+            "region_name": "apac",  # MUST be us-east-1 for R2/Boto3 signature to work
+            "addressing_style": "path",
+            "signature_version": "s3v4",
+            "object_parameters": AWS_S3_OBJECT_PARAMETERS,
+        }
+    }
+else:
+    # 2. MEDIA: Local Storage
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = BASE_DIR / 'media'
+
+    # Add Local backend for default (media) storage
+    STORAGES["default"] = {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    }
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

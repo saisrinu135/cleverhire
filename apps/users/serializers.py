@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from apps.core.serializers import ResponseSerializer, LocationSerializer
-from apps.users.models import CompanyProfile
+from apps.users.models import CompanyProfile, Profile, Experience
 
 User = get_user_model()
 
@@ -86,3 +86,32 @@ class CompanySerializer(serializers.ModelSerializer):
         if location_ids is not None:
             instance.locations.set(location_ids)
         return instance
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    full_name = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = Profile
+        fields = ('id','full_name','headline','summary','phone','is_phone_verified','location','current_title',
+                  'years_of_experience','desired_salary_min','desired_salary_max','resume',
+                  'resume_text','skills','is_actively_looking','is_open_to_remote')
+        read_only_fields = ('id', 'is_phone_verified', 'full_name')
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        validated_data['full_name'] = f"{user.first_name} {user.last_name}".strip()
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        skills = validated_data.pop('skills', [])
+        if skills:
+            instance.skills.set(skills)
+        return super().update(instance, validated_data)
+
+
+class ExperienceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Experience
+        fields = ('id','company','company_name','title','start_date','end_date','description','is_current')
+        read_only_fields = ('id',)

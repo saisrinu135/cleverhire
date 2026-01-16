@@ -6,7 +6,7 @@ from sentry_sdk.integrations.django import DjangoIntegration
 DEBUG = False
 
 # Security settings
-SECURE_SSL_REDIRECT = False
+SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 SECURE_BROWSER_XSS_FILTER = True

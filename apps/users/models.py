@@ -73,6 +73,13 @@ class Profile(TimeStampedModel):
     is_actively_looking = models.BooleanField(default=True)
     is_open_to_remote = models.BooleanField(default=True)
 
+    #links
+    github_url = models.URLField(blank=True, null=True)
+    linkedin_url = models.URLField(blank=True, null=True)
+    twitter_url = models.URLField(blank=True, null=True)
+    instagram_url = models.URLField(blank=True, null=True)
+    website_url = models.URLField(blank=True, null=True)
+
     def __str__(self):
         return f"{self.user.email}'s Profile"
 

@@ -5,16 +5,16 @@ from apps.users.models import User, Profile, CompanyProfile, Experience, Educati
 
 
 
-class WorkExperienceInline(admin.TabularInline):
+class WorkExperienceInline(admin.StackedInline):
     model = Experience
     extra = 0
 
 
-class EducationInline(admin.TabularInline):
+class EducationInline(admin.StackedInline):
     model = Education
     extra = 0
 
-class ProfileInline(admin.TabularInline):
+class ProfileInline(admin.StackedInline):
     model = Profile
     extra = 0
 

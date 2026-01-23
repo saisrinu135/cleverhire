@@ -207,7 +207,7 @@ if USE_S3:
             "default_acl": None,
             "location": "media",
             "file_overwrite": False,
-            "region_name": "apac",  # MUST be us-east-1 for R2/Boto3 signature to work
+            "region_name": "apac",
             "addressing_style": "path",
             "signature_version": "s3v4",
             "object_parameters": AWS_S3_OBJECT_PARAMETERS,
@@ -252,7 +252,7 @@ REST_FRAMEWORK = {
         'rest_framework.filters.OrderingFilter',
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 20,
+    'PAGE_SIZE': 10,
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'EXCEPTION_HANDLER': 'apps.core.exceptions.custom_exception_handler',
     'DEFAULT_RENDERER_CLASSES': [

@@ -14,6 +14,7 @@ from apps.jobs.models import Job, Skill
 from apps.jobs.serializers import JobSerializer, SkillSerializer
 
 from apps.core.permissions import IsEmployer
+from apps.core.pagination import VariableResultsSetPagination
 
 
 User = get_user_model()
@@ -122,3 +123,12 @@ class JobCloseAPIView(APIView):
         job.status = Job.Status.CLOSED
         job.save()
         return Response({"status": "Job closed successfully"}, status=status.HTTP_200_OK)
+
+
+class SkillsListView(generics.ListAPIView):
+    queryset = Skill.objects.all()
+    serializer_class = SkillSerializer
+    permission_classes = [permissions.AllowAny]
+    filter_backends = [SearchFilter]
+    search_fields = ['name', 'category']
+    pagination_class = VariableResultsSetPagination

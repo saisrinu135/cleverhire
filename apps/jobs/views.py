@@ -3,15 +3,17 @@ from rest_framework.views import APIView
 from rest_framework import generics
 from rest_framework import permissions
 from rest_framework import status
+from rest_framework import viewsets
 
+from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter, SearchFilter
 
-from apps.jobs.models import Job, Skill
-from apps.jobs.serializers import JobSerializer, SkillSerializer
+from apps.jobs.models import Job, Skill, SavedJob
+from apps.jobs.serializers import JobSerializer, SkillSerializer, SavedJobSerializer
 
 from apps.core.permissions import IsEmployer
 from apps.core.pagination import VariableResultsSetPagination
@@ -126,9 +128,25 @@ class JobCloseAPIView(APIView):
 
 
 class SkillsListView(generics.ListAPIView):
-    queryset = Skill.objects.all()
+    queryset = Skill.objects.all().order_by('name')
     serializer_class = SkillSerializer
     permission_classes = [permissions.AllowAny]
     filter_backends = [SearchFilter]
     search_fields = ['name', 'category']
     pagination_class = VariableResultsSetPagination
+
+
+class JobSaveAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, id):
+        job = get_object_or_404(Job.active_objects, id=id)
+
+        saved_existing_job = SavedJob.objects.filter(user=request.user, job=job)
+
+        if saved_existing_job:
+            saved_existing_job.delete()
+            return Response({'message': 'Job removed from saved', "status_code": status.HTTP_200_OK}, status=status.HTTP_200_OK)
+        else:
+            saved_job = SavedJob.objects.create(user=request.user, job=job)
+            return Response({'message': 'Job saved successfully', "status_code": status.HTTP_201_CREATED}, status=status.HTTP_201_CREATED)

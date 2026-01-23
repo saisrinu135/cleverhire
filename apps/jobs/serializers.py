@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from apps.core.serializers import LocationSerializer
 from apps.core.models import Location
-from .models import Job, Skill
+from apps.jobs.models import Job, Skill, SavedJob
 from apps.users.models import User, CompanyProfile
 
 
@@ -57,3 +57,9 @@ class JobSerializer(serializers.ModelSerializer):
             instance.required_skills.set(skill_ids)
 
         return super().update(instance, validated_data)
+
+
+class SavedJobSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SavedJob
+        fields = ['id', 'job', 'user']

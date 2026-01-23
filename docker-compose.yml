@@ -48,7 +48,7 @@ services:
             - cleverhire
 
     backend:
-        image: saisrinu135/cleverhire-backend:latest
+        image: saisrinugampa/cleverhire-backend:latest
         command:
             - sh
             - -c
@@ -75,7 +75,7 @@ services:
             - cleverhire
 
     celery_worker:
-        image: saisrinu135/cleverhire-backend:latest
+        image: saisrinugampa/cleverhire-backend:latest
         command: celery -A config worker -l info
         volumes:
           - .:/app
@@ -89,7 +89,7 @@ services:
             - cleverhire
 
     celery_beat: 
-        image: saisrinu135/cleverhire-backend:latest
+        image: saisrinugampa/cleverhire-backend:latest
         command: celery -A config beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
         volumes:
           - .:/app

@@ -102,7 +102,9 @@ class ProfileSerializer(serializers.ModelSerializer):
         skills = validated_data.pop('skills', [])
         if skills:
             instance.skills.set(skills)
-        return super().update(instance, validated_data)
+        instance = super().update(instance, validated_data)
+        instance.calculate_completeness()
+        return instance
 
 
 class ExperienceSerializer(serializers.ModelSerializer):

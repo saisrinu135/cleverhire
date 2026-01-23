@@ -44,9 +44,17 @@ def custom_exception_handler(exc, context):
 
     # If it is a handled DRF exception (e.g. 400, 401, 403, 404)
     if response is not None:
+        print(response.data)
         # Safely get message from response data
         if isinstance(response.data, dict):
-            message = response.data.get('detail', 'An error occurred')
+            if 'detail' in response.data:
+                message = response.data['detail']
+            else:
+                for key, value in response.data.items():
+                    if isinstance(value, list):
+                        message = value[0] if value else 'An error occurred'
+                    else:
+                        message = str(value)
         else:
             message = 'An error occurred'
 

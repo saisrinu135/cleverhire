@@ -3,6 +3,17 @@ from django.contrib import admin
 # Register your models here.
 from apps.jobs.models import Skill, Job, SavedJob, SavedSearch
 from apps.core.models import Location
+from apps.applications.models import Application
+
+
+
+class ApplicationInline(admin.StackedInline):
+    model = Application
+    extra = 0
+    readonly_fields = ('created_at', 'updated_at')
+
+
+
 
 @admin.register(Skill)
 class SkillAdmin(admin.ModelAdmin):
@@ -18,6 +29,7 @@ class JobAdmin(admin.ModelAdmin):
     list_filter = ['company', 'is_remote', 'is_deleted', 'status', 'employment_type', 'experience_level']
     readonly_fields = ('created_at', 'updated_at')
     search_fields = ['title', 'company__company_name']
+    inlines = (ApplicationInline,)
 
 
 @admin.register(SavedJob)

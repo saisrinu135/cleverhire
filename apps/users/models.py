@@ -1,5 +1,6 @@
 import uuid
 
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.auth.models import AbstractUser
 from django.contrib.gis.db import models
 from django.utils.translation import gettext_lazy as _
@@ -80,6 +81,12 @@ class Profile(TimeStampedModel):
     instagram_url = models.URLField(blank=True, null=True)
     website_url = models.URLField(blank=True, null=True)
 
+    profile_completeness = models.IntegerField(
+        default=0,
+        validators=[MinValueValidator(0), MaxValueValidator(100)]
+    )
+    visibility_settings = models.JSONField(default=dict, blank=True)
+
     def __str__(self):
         return f"{self.user.email}'s Profile"
 
@@ -87,6 +94,33 @@ class Profile(TimeStampedModel):
         verbose_name = 'Profile'
         verbose_name_plural = 'Profiles'
         db_table = 'profiles'
+    
+    def calculate_completeness(self):
+        """Calculate the profile completeness"""
+        score = 0
+
+        if self.full_name:
+            score += 5
+        if self.phone:
+            score += 5
+        if self.summary:
+            score += 5
+        if self.current_title:
+            score += 10
+        if self.years_of_experience:
+            score += 10
+        if self.resume:
+            score += 10
+        if self.skills.exists():
+            score += 10
+        
+        self.profile_completeness = score
+        self.save(update_fields=['profile_completeness'])
+
+        return score
+        
+        
+
 
 
 class CompanyProfile(TimeStampedModel):

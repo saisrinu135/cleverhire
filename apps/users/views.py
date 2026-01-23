@@ -224,6 +224,8 @@ class PofileCreateView(viewsets.ViewSet):
             **serializer.validated_data
         )
 
+        profile.calculate_completeness()
+
         if skills:
             profile.skills.set(skills)
 

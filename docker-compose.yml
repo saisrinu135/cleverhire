@@ -1,0 +1,181 @@
+services:
+    redis:
+        image: redis:7-alpine
+        container_name: cleverhire_redis
+        ports:
+          - "6379:6379"
+        volumes:
+          - redis_data:/data
+        networks:
+            - cleverhire
+
+    database:
+        image: imresamu/postgis:16-3.5-alpine
+        container_name: cleverhire_db
+        restart: always
+        environment:
+            - POSTGRES_DB=${POSTGRES_DB}
+            - POSTGRES_USER=${POSTGRES_USER}
+            - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+        ports:
+            - "5432:5432"
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U postgres"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        networks:
+            - cleverhire
+
+
+    rabbitmq:
+        image: rabbitmq:3.12-management-alpine
+        container_name: cleverhire_rabitmq
+        environment:
+            - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+            - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+        ports:
+            - "5672:5672"
+            - "15672:15672"
+        volumes:
+            - rabbitmq_data:/var/lib/rabbitmq
+        healthcheck:
+          test: rabbitmq-diagnostics -q ping
+          interval: 30s
+          timeout: 10s
+          retries: 5
+        networks:
+            - cleverhire
+
+    backend:
+        build:
+            context: ./backend
+            dockerfile: Dockerfile
+        container_name: cleverhire_backend
+        command:
+            - sh
+            - -c
+            - |
+              python manage.py migrate &&
+              python manage.py runserver 0.0.0.0:8000
+        volumes:
+            - ./backend:/app
+            - ./staticfiles:/app/staticfiles
+            - ./media:/app/media
+        ports:
+            - "8000:8000"
+        expose:
+            - "8000"
+        env_file:
+            - .env
+        depends_on:
+            database:
+              condition: service_healthy
+            redis:
+              condition: service_started
+        networks:
+            - cleverhire
+
+    celery_worker:
+        build:
+            context: ./backend
+            dockerfile: Dockerfile
+        container_name: cleverhire_celery
+        command: celery -A config worker -l info
+        volumes:
+          - ./backend:/app
+        env_file:
+          - .env
+        depends_on:
+          - backend
+          - rabbitmq
+          - redis
+        networks:
+            - cleverhire
+
+    celery_beat: 
+        build:
+            context: ./backend
+            dockerfile: Dockerfile
+        container_name: cleverhire_beat
+        command: celery -A config beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+        volumes:
+          - ./backend:/app
+        env_file:
+          - .env
+        depends_on:
+          - backend
+          - rabbitmq
+          - redis
+        networks:
+            - cleverhire
+    flower:
+        image: mher/flower:2.0
+        ports:
+            - "5556:5555"
+        environment:
+            - CELERY_BROKER_URL=amqp://${RABBITMQ_DEFAULT_USER}:${RABBITMQ_DEFAULT_PASS}@rabbitmq:5672//
+            - FLOWER_PORT=5555
+            - FLOWER_URL_PREFIX=flower
+        depends_on:
+            rabbitmq:
+                condition: service_healthy
+        restart: always
+        networks:
+            - cleverhire
+    
+    frontend:
+        build:
+            context: ./frontend
+            dockerfile: Dockerfile
+        container_name: cleverhire_frontend
+        command: npm start
+        volumes:
+            - ./frontend:/app
+        ports:
+            - "3000:3000"
+        expose:
+            - "3000"
+        depends_on:
+            - backend
+        networks:
+            - cleverhire
+    
+    # nginx:
+    #     image: nginx:alpine
+    #     container_name: cleverhire_nginx
+    #     ports:
+    #         - "80:80"
+    #         - "443:443"
+    #     volumes:
+    #         - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    #         - ./staticfiles:/app/staticfiles:ro
+    #         - ./media:/app/media:ro
+    #         - ./certbot/conf:/etc/letsencrypt
+    #         - ./certbot/www:/var/www/certbot
+    #     depends_on:
+    #         - backend
+    #     restart: unless-stopped
+    #     networks:
+    #         - cleverhire
+    
+    # certbot:
+    #     image: certbot/certbot
+    #     container_name: cleverhire_certbot
+    #     volumes:
+    #         - ./certbot/conf:/etc/letsencrypt
+    #         - ./certbot/www:/var/www/certbot
+    #     networks:
+    #         - cleverhire
+
+
+networks:
+    cleverhire:
+        driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+  rabbitmq_data:

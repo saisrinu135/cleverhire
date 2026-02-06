@@ -1,0 +1,6 @@
+venv/
+__pycache__/
+certbot/
+.git/
+.env
+nginx/

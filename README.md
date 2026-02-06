@@ -124,7 +124,7 @@ docker exec -it cleverhire_backend python manage.py createsuperuser
 - **Frontend**: https://cleverhire.saisrinu.online
 - **API**: https://cleverhire.saisrinu.online/api
 - **Admin Panel**: https://cleverhire.saisrinu.online/admin/
-- **API Docs**: https://cleverhire.saisrinu.online/api/schema/swagger-ui/
+- **API Docs**: https://cleverhire.saisrinu.online/api/schema/docs/
 - **Flower (Celery Monitor)**: https://cleverhire.saisrinu.online/flower/
 
 ## 🏗️ Project Structure

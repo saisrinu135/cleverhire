@@ -67,7 +67,7 @@ services:
             - ./media:/app/media
             - ./.env:/app/.env
         ports:
-            - "127.0.0.1:8000:8000"
+            - "8000:8000"
         expose:
             - "8000"
         env_file:
@@ -136,11 +136,12 @@ services:
         environment:
             - NEXT_PUBLIC_API_BASE_URL=https://cleverhire.saisrinu.online
             - NEXT_PUBLIC_API_VERSION=v1
-        command: npm run dev -- -H 0.0.0.0
+        command: npm start
         volumes:
             - ./frontend:/app
+            - /app/node_modules
         ports:
-            - "127.0.0.1:3000:3000"
+            - "3000:3000"
         expose:
             - "3000"
         depends_on:

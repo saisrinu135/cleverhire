@@ -64,7 +64,7 @@ export function LoginForm() {
               <input
                 type="email"
                 {...register("email")}
-                className={`w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm ${
+                className={`w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm text-black ${
                   errors.email
                     ? "border-red-300 bg-red-50"
                     : "border-gray-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
@@ -109,7 +109,7 @@ export function LoginForm() {
               <input
                 type={showPassword ? "text" : "password"}
                 {...register("password")}
-                className={`w-full pl-10 pr-10 py-2.5 rounded-lg border text-sm ${
+                className={`w-full pl-10 pr-10 py-2.5 rounded-lg border text-sm text-black ${
                   errors.password
                     ? "border-red-300 bg-red-50"
                     : "border-gray-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-100"

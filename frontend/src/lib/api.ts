@@ -42,7 +42,7 @@ apiClient.interceptors.request.use(async (config) => {
                     throw new Error('No refresh token available')
                 }
 
-                const response = await axios.post(`${API_BASE_URL}/api/${APIVERSION}/users/refresh`, {
+                const response = await axios.post(`${API_BASE_URL}/${APIVERSION}/users/refresh`, {
                     refresh: refreshToken
                 });
 

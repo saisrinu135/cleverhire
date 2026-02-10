@@ -8,6 +8,7 @@ import { z } from "zod";
 import axios from "axios";
 import { Briefcase, Eye, EyeOff, CheckCircle } from "lucide-react";
 import Link from "next/link";
+import { useAuth } from "@/hooks/useAuth";
 
 // Form validation schema
 const signupSchema = z.object({
@@ -25,7 +26,7 @@ type SignupFormData = z.infer<typeof signupSchema>;
 
 export function SignupForm() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
+  const {signup, isLoading} = useAuth()
   const [error, setError] = useState<string>("");
   const [showPassword, setShowPassword] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -48,39 +49,7 @@ export function SignupForm() {
   };
 
   const onSubmit = async (data: SignupFormData) => {
-    setIsLoading(true);
-    setError("");
-
-    try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/signup`,
-        data,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (response.status === 200 || response.status === 201) {
-        setSuccess(true);
-        if (response.data.token) {
-          localStorage.setItem("token", response.data.token);
-          localStorage.setItem("user", JSON.stringify(response.data.user));
-        }
-        setTimeout(() => {
-          router.push("/dashboard");
-        }, 2000);
-      }
-    } catch (err: any) {
-      setError(
-        err.response?.data?.detail ||
-          err.response?.data?.message ||
-          "Signup failed. Please check your information and try again."
-      );
-    } finally {
-      setIsLoading(false);
-    }
+    await signup(data);
   };
 
   if (success) {
@@ -131,7 +100,7 @@ export function SignupForm() {
                 <input
                   type="text"
                   {...register("first_name")}
-                  className={`w-full px-4 py-2 rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 ${
+                  className={`w-full px-4 py-2 rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black outline-none transition-all duration-200 ${
                     errors.first_name
                       ? "border-red-300 focus:ring-red-500 focus:border-red-500"
                       : "border-gray-300 hover:border-gray-400"
@@ -165,7 +134,7 @@ export function SignupForm() {
                 <input
                   type="text"
                   {...register("last_name")}
-                  className={`w-full px-4 py-2 rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 ${
+                  className={`w-full px-4 py-2 rounded-lg border focus:ring-2 text-black focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 ${
                     errors.last_name
                       ? "border-red-300 focus:ring-red-500 focus:border-red-500"
                       : "border-gray-300 hover:border-gray-400"
@@ -211,7 +180,7 @@ export function SignupForm() {
               <input
                 type="email"
                 {...register("email")}
-                className={`w-full pl-10 pr-4 py-2 rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 ${
+                className={`w-full pl-10 pr-4 py-2 rounded-lg border focus:ring-2 text-black focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 ${
                   errors.email
                     ? "border-red-300 focus:ring-red-500 focus:border-red-500"
                     : "border-gray-300 hover:border-gray-400"
@@ -246,7 +215,7 @@ export function SignupForm() {
               <input
                 type={showPassword ? "text" : "password"}
                 {...register("password")}
-                className={`w-full px-4 py-2 pr-12 rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 ${
+                className={`w-full px-4 py-2 pr-12 rounded-lg border focus:ring-2 focus:ring-blue-500 text-black focus:border-blue-500 outline-none transition-all duration-200 ${
                   errors.password
                     ? "border-red-300 focus:ring-red-500 focus:border-red-500"
                     : "border-gray-300 hover:border-gray-400"

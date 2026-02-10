@@ -3,22 +3,38 @@ import { LoginRequest, LoginResponse, SignupRequest, SignupResponse, VerifyReque
 
 export const authService = {
     login: async (data: LoginRequest): Promise<LoginResponse> => {
-        const response = await apiClient.post('users/login/', data);
-        return response.data;
+        try {
+            const response = await apiClient.post('users/login/', data);
+            return response.data;
+        } catch (error: any) {
+            throw error.response?.data || error;
+        }
     },
 
     signup: async (data: SignupRequest): Promise<SignupResponse> => {
-        const response = await apiClient.post('users/signup/', data);
-        return response.data;
+        try {
+            const response = await apiClient.post('users/signup/', data);
+            return response.data;
+        } catch (error: any) {
+            throw error.response?.data || error;
+        }
     },
 
     verify: async (data: VerifyRequest) => {
-        const response = await apiClient.post('users/verify/', data);
-        return response.data;
+        try {
+            const response = await apiClient.post('users/verify/', data);
+            return response.data;
+        } catch (error: any) {
+            throw error.response?.data || error;
+        }
     },
 
-    logout: async (data: LogutRequest)=> {
-        const response = await apiClient.post('users/logout/', data);
-        return response.data;
+    logout: async (data: LogutRequest) => {
+        try {
+            const response = await apiClient.post('users/logout/', data);
+            return response.data;
+        } catch (error: any) {
+            throw error.response?.data || error;
+        }
     }
 }

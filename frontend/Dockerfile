@@ -15,7 +15,7 @@ RUN npm run build
 
 
 # for production (no need of code after building)
-FROM node:20-alpine
+FROM node:22-alpine
 
 # Copy built application
 COPY --from=builder /app/.next ./.next

@@ -24,7 +24,7 @@ urlpatterns = [
     path('company/', CompanyView.as_view(), name='company'),
     path('company/<uuid:id>/', CompanyRetrieveUpdateDestroyView.as_view(), name='company'),
     path('profile/', PofileCreateView.as_view({'post': 'create'})),
-    path('profile/', ProfileRetrieveUpdateView.as_view({'get': 'retrieve', 'post': 'create', 'put': 'update', 'patch': 'partial_update'}), name='profile'),
+    path('get-profile/', ProfileRetrieveUpdateView.as_view(), name='get-profile'),
     path('experience/', ExperienceView.as_view(), name='experience'),
     path('experience/<uuid:id>/', ExperienceDestroyView.as_view(), name='experience')
 ] + router.urls

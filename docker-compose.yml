@@ -65,6 +65,7 @@ services:
             - ./backend:/app
             - ./staticfiles:/app/staticfiles
             - ./media:/app/media
+            - ./.env:/app/.env
         ports:
             - "127.0.0.1:8000:8000"
         expose:
@@ -132,7 +133,10 @@ services:
             context: ./frontend
             dockerfile: Dockerfile
         container_name: cleverhire_frontend
-        command: npm start
+        environment:
+            - NEXT_PUBLIC_API_BASE_URL=https://cleverhire.saisrinu.online
+            - NEXT_PUBLIC_API_VERSION=v1
+        command: npm run dev -- -H 0.0.0.0
         volumes:
             - ./frontend:/app
         ports:

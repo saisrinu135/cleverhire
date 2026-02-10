@@ -14,7 +14,6 @@ export const useAuth = () => {
 
         try {
             const response = await authService.login(data);
-            console.log(response)
 
             if (response.status_code == 200 && response.status && response.access) {
                 localStorage.setItem('accessToken', response.access);
@@ -27,7 +26,8 @@ export const useAuth = () => {
                 toast.error(response?.message || 'Login Failed');
             }
         } catch (err: any) {
-            toast.error(err.response?.data?.message || "Login failed")
+            const errorMessage = err?.message || "Login failed";
+            toast.error(errorMessage);
         } finally {
             setIsLoading(false);
         }
@@ -40,11 +40,13 @@ export const useAuth = () => {
             const response = await authService.signup(data);
             if (response.status_code == 201 && response.status) {
                 toast.success(response?.message || 'Signup Successful. Please verify your email before logging in.');
+                router.push('/login');
             } else {
                 toast.error(response?.message || 'Signup Failed');
             }
         } catch (err: any) {
-            toast.error(err.response?.data?.message || 'Signup failed')
+            const errorMessage = err?.message || 'Signup failed';
+            toast.error(errorMessage);
         } finally {
             setIsLoading(false)
         }

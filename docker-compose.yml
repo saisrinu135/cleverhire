@@ -137,6 +137,9 @@ services:
             - NEXT_PUBLIC_API_BASE_URL=https://cleverhire.saisrinu.online
             - NEXT_PUBLIC_API_VERSION=v1
         command: npm start
+        volumes:
+            - ./frontend:/app
+            - ./node_modules:/app/node_modules
         ports:
             - "3000:3000"
         expose:

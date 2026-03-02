@@ -2,8 +2,7 @@ services:
     redis:
         image: redis:7-alpine
         container_name: cleverhire_redis
-        ports:
-          - "6379:6379"
+        restart: always
         volumes:
           - redis_data:/data
         networks:
@@ -19,8 +18,6 @@ services:
             - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
         volumes:
             - postgres_data:/var/lib/postgresql/data
-        ports:
-            - "5432:5432"
         healthcheck:
             test: ["CMD-SHELL", "pg_isready -U postgres"]
             interval: 10s
@@ -29,16 +26,13 @@ services:
         networks:
             - cleverhire
 
-
     rabbitmq:
         image: rabbitmq:3.12-management-alpine
         container_name: cleverhire_rabitmq
+        restart: always
         environment:
             - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
             - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
-        ports:
-            - "5672:5672"
-            - "15672:15672"
         volumes:
             - rabbitmq_data:/var/lib/rabbitmq
         healthcheck:
@@ -54,22 +48,17 @@ services:
             context: ./backend
             dockerfile: Dockerfile
         container_name: cleverhire_backend
+        restart: always
         command:
             - sh
             - -c
             - |
                 python manage.py migrate &&
                 python manage.py collectstatic --noinput &&
-                gunicorn config.wsgi:application --bind 0.0.0.0:8000
+                gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 4
         volumes:
-            - ./backend:/app
             - ./staticfiles:/app/staticfiles
             - ./media:/app/media
-            - ./.env:/app/.env
-        ports:
-            - "8000:8000"
-        expose:
-            - "8000"
         env_file:
             - .env
         depends_on:
@@ -85,9 +74,8 @@ services:
             context: ./backend
             dockerfile: Dockerfile
         container_name: cleverhire_celery
+        restart: always
         command: celery -A config worker -l info
-        volumes:
-          - ./backend:/app
         env_file:
           - .env
         depends_on:
@@ -102,9 +90,8 @@ services:
             context: ./backend
             dockerfile: Dockerfile
         container_name: cleverhire_beat
+        restart: always
         command: celery -A config beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
-        volumes:
-          - ./backend:/app
         env_file:
           - .env
         depends_on:
@@ -113,10 +100,11 @@ services:
           - redis
         networks:
             - cleverhire
+
     flower:
         image: mher/flower:2.0
-        ports:
-            - "5556:5555"
+        container_name: cleverhire_flower
+        restart: always
         environment:
             - CELERY_BROKER_URL=amqp://${RABBITMQ_DEFAULT_USER}:${RABBITMQ_DEFAULT_PASS}@rabbitmq:5672//
             - FLOWER_PORT=5555
@@ -124,33 +112,23 @@ services:
         depends_on:
             rabbitmq:
                 condition: service_healthy
-        restart: always
         networks:
             - cleverhire
     
     frontend:
         build:
             context: ./frontend
-            dockerfile: Dockerfile.dev
+            dockerfile: Dockerfile
         container_name: cleverhire_frontend
+        restart: always
+        command: sh -c "npm run build && npm start"
         environment:
-            - NEXT_PUBLIC_API_BASE_URL=https://cleverhire.saisrinu.online
+            - NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
             - NEXT_PUBLIC_API_VERSION=v1
-        command: npm run dev
-        volumes:
-            - ./frontend:/app
-            - /app/node_modules
-            - /app/ .next
-        ports:
-            - "3000:3000"
-        expose:
-            - "3000"
         depends_on:
             - backend
         networks:
             - cleverhire
-    
-
 
 networks:
     cleverhire:

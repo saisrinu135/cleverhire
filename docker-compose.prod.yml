@@ -56,6 +56,8 @@ services:
                 python manage.py migrate &&
                 python manage.py collectstatic --noinput &&
                 gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 4
+        ports:
+            - "8000:8000"
         volumes:
             - ./staticfiles:/app/staticfiles
             - ./media:/app/media
@@ -105,6 +107,8 @@ services:
         image: mher/flower:2.0
         container_name: cleverhire_flower
         restart: always
+        ports:
+            - "5555:5555"
         environment:
             - CELERY_BROKER_URL=amqp://${RABBITMQ_DEFAULT_USER}:${RABBITMQ_DEFAULT_PASS}@rabbitmq:5672//
             - FLOWER_PORT=5555
@@ -122,6 +126,8 @@ services:
         container_name: cleverhire_frontend
         restart: always
         command: npm start
+        ports:
+            - "3000:3000"
         environment:
             - NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
             - NEXT_PUBLIC_API_VERSION=v1

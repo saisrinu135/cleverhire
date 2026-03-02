@@ -121,7 +121,7 @@ services:
             dockerfile: Dockerfile
         container_name: cleverhire_frontend
         restart: always
-        command: sh -c "npm run build && npm start"
+        command: npm start
         environment:
             - NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
             - NEXT_PUBLIC_API_VERSION=v1

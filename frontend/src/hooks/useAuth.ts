@@ -21,7 +21,7 @@ export const useAuth = () => {
                 localStorage.setItem('user', JSON.stringify(response.user));
 
                 toast.success(response?.message || 'Login Successful');
-                router.push('/dashboard');
+                router.push('/profile');
             } else {
                 toast.error(response?.message || 'Login Failed');
             }

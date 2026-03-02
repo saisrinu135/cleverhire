@@ -1,25 +1,22 @@
-import axios, { AxiosRequestConfig } from "axios";
-import { refresh } from "next/cache";
+import axios from "axios";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
-const APIVERSION = process.env.NEXT_PUBLIC_API_VERSION
-const baseUrl = `${API_BASE_URL}/api/v1/${APIVERSION}`
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL as string;
+const APIVERSION = process.env.NEXT_PUBLIC_API_VERSION as string;
 
 // JWT utilities
 const isTokenExpired = (token: string): boolean => {
     try {
-        const  payload = JSON.parse(atob(token.split('.')[1]));
+        const payload = JSON.parse(atob(token.split('.')[1]));
         // Check if the token will expire in next 5 mins
-        return payload.exp * 1000 < Date.now() + 3000000;
+        return payload.exp * 1000 < Date.now() + 300000;
     } catch {
         return true;
     }
 };
 
-
 const apiClient = axios.create({
-    baseURL: `${API_BASE_URL}/api/${APIVERSION}`,
-    timeout: 1000,
+    baseURL: `${API_BASE_URL}/${APIVERSION}`,
+    timeout: 30000,
     headers: {
         'Content-Type': 'application/json',
     },
@@ -67,13 +64,12 @@ apiClient.interceptors.request.use(async (config) => {
 apiClient.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response?.status_code === 401 && typeof window != 'undefined'){
+        if (error.response?.status === 401 && typeof window !== 'undefined'){
             localStorage.clear();
             window.location.href = '/login';
         }
         return Promise.reject(error)
     }
 )
-
 
 export default apiClient;

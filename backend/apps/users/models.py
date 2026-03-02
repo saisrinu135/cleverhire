@@ -174,6 +174,7 @@ class Experience(TimeStampedModel):
         verbose_name = 'Experience'
         verbose_name_plural = 'Experiences'
         db_table = 'experiences'
+        ordering = ['-start_date']
 
 
 class Education(TimeStampedModel):
@@ -184,3 +185,9 @@ class Education(TimeStampedModel):
     field_of_study = models.CharField(max_length=255, blank=True)
     start_date = models.DateField()
     end_date = models.DateField(blank=True, null=True)
+
+    class Meta:
+        verbose_name = 'Education'
+        verbose_name_plural = 'Educations'
+        db_table = 'educations'
+        ordering = ['-start_date']

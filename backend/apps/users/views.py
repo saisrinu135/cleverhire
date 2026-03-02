@@ -255,7 +255,10 @@ class ProfileRetrieveUpdateView(generics.RetrieveUpdateAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_object(self):
-        return self.request.user.profile
+        try:
+            return self.request.user.profile
+        except Profile.DoesNotExist:
+            raise ValidationError("Profile does not exist")
 
 
 class ExperienceView(generics.ListCreateAPIView):

@@ -60,7 +60,7 @@ services:
             - |
                 python manage.py migrate &&
                 python manage.py collectstatic --noinput &&
-                gunicorn config.wsgi:application --bind 0.0.0.0:8000
+                gunicorn config.wsgi:application --bind 0.0.0.0:8000 --timeout 120
         volumes:
             - ./backend:/app
             - ./staticfiles:/app/staticfiles
@@ -134,7 +134,7 @@ services:
             dockerfile: Dockerfile.dev
         container_name: cleverhire_frontend
         environment:
-            - NEXT_PUBLIC_API_BASE_URL=https://cleverhire.saisrinu.online
+            - NEXT_PUBLIC_API_BASE_URL=http://localhost:8000/api
             - NEXT_PUBLIC_API_VERSION=v1
         command: npm run dev
         volumes:
